@@ -71,6 +71,7 @@ mosquitto_sub -h 192.168.0.126 -t "#" -v -u "mqtt_login" -P "mqtt_pass"
 
 ![image](https://github.com/Bagunda/breezart-mqtt-bridge/assets/16766521/a76a0fe4-2d97-4b6f-845f-55bb407276d7)
 
+![image](https://github.com/Bagunda/breezart-mqtt-bridge/assets/16766521/94563d1a-3524-4402-9f3b-d946047fff29)
 
 
 

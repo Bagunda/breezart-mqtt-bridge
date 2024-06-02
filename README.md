@@ -53,9 +53,31 @@ MQTT сообщения можно читать такой командой:
 mosquitto_sub -h 192.168.0.126 -t "#" -v -u "mqtt_login" -P "mqtt_pass"
 ```
 
+
 ## Известные проблемы
 
 - недостаточно оттестировано
 - структура кода - так себе, пока что принцип "работает - да и ладно"
 - не реализовано получение настроек сценариев
 - начинаю изучать классы, поэтому существует файл BagMQTTClass.py, который по большому счёту не стоило бы делать, но мне проще было сделать именно такую связку
+
+![image](https://github.com/Bagunda/breezart-mqtt-bridge/assets/16766521/93df6847-0728-490a-9f85-53cf6f44fa83)
+
+![image](https://github.com/Bagunda/breezart-mqtt-bridge/assets/16766521/803eb101-0292-456d-97ca-2d1fda45b341)
+
+![image](https://github.com/Bagunda/breezart-mqtt-bridge/assets/16766521/b70384fe-9c0f-4f0e-a1f5-b3dfcb76499a)
+
+![image](https://github.com/Bagunda/breezart-mqtt-bridge/assets/16766521/893b85c6-20a5-493f-8af6-6ffc3066d4b4)
+
+![image](https://github.com/Bagunda/breezart-mqtt-bridge/assets/16766521/a76a0fe4-2d97-4b6f-845f-55bb407276d7)
+
+
+
+
+
+
+
+
+
+
+

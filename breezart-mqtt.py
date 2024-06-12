@@ -3,7 +3,7 @@
 # Диденко Александр. +79802616369, wa.me/+79802616369, t.me/+79802616369, vk.com/Bagunda. Обращайтесь если нужно что-то сделать по этой теме на коммерческой основе. Сам я УмноДомщик с громадным стажем. Могу связать всё со всем.
 __author__ = "Bagunda"
 __license__ = "GPL"
-__version__ = "1.1.2"
+__version__ = "1.2.1"
 
 import sys
 # import daemon
@@ -25,7 +25,7 @@ TCP_PORT = 1560
 TCP_PASS = 28854
 BUFFER_SIZE = 128
 # interval auto requests unit state, sec
-INTERVAL = 10 # Normaly = 30
+INTERVAL = 5 # Normaly = 30
 
 # define the MQTT connection for communication with openHAB
 BROKER = '192.168.0.126'
@@ -265,18 +265,18 @@ class LocalBrocker_on_message(BagMQTTClass.BagMQTTClass):
 
 
 def on_connect_mqtt(client, __userdata, __flags, __rc):
-    client.publish(PREFIX + '/LWT', 'Online', 0, True)
-    client.subscribe(PREFIX + '/POWER', 0)
-    client.subscribe(PREFIX + '/AUTORESTART', 0)
-    client.subscribe(PREFIX + '/SPEED', 0)
-    client.subscribe(PREFIX + '/TEMPERATURE', 0)
-    client.subscribe(PREFIX + '/HUMIDITY', 0)
-    client.subscribe(PREFIX + '/HUMIDITYMODE', 0)
-    client.subscribe(PREFIX + '/COMFORT', 0)
-    client.subscribe(PREFIX + '/MODE', 0)
-    client.subscribe(PREFIX + '/SCENE', 0)
-    client.subscribe(PREFIX + '/SETDATETIME', 0)
-    client.subscribe(PREFIX + '/#', 0)
+    # client.publish(PREFIX + '/LWT', 'Online', 0, True)
+    # client.subscribe(PREFIX + '/POWER', 0)
+    # client.subscribe(PREFIX + '/AUTORESTART', 0)
+    # client.subscribe(PREFIX + '/SPEED', 0)
+    # client.subscribe(PREFIX + '/TEMPERATURE', 0)
+    # client.subscribe(PREFIX + '/HUMIDITY', 0)
+    # client.subscribe(PREFIX + '/HUMIDITYMODE', 0)
+    # client.subscribe(PREFIX + '/COMFORT', 0)
+    # client.subscribe(PREFIX + '/MODE', 0)
+    # client.subscribe(PREFIX + '/SCENE', 0)
+    # client.subscribe(PREFIX + '/SETDATETIME', 0)
+    # client.subscribe(PREFIX + '/#', 0)
     client.message_callback_add(PREFIX + '/POWER', on_power_message)
     client.message_callback_add(PREFIX + '/AUTORESTART', on_autorestart_message)
     client.message_callback_add(PREFIX + '/SPEED', on_speed_message)
@@ -727,6 +727,7 @@ def get_vent_status(client):
         client.publish(PREFIX + '/STATUS', json.dumps(status, ensure_ascii=False))
         return
     data_array = split_data(data, 11)
+    # print(data, data_array, len(data_array))
     if not data_array:
         msg = 'Incorrect answer 3: {0}'.format(data)
         bagprint(msg, "LOG_ERR")
@@ -858,8 +859,9 @@ def get_vent_status(client):
     '''
     status['Speed']['Current'] = int(data_array[5], 16) & 0x0F
     status['Speed']['Target'] = (int(data_array[5], 16) & 0xF0) >> 4
-    status['Speed']['Actual'] = (int(data_array[5], 16) & 0xFF00) >> 8
-    LocalBrocker.bag_pub("fanspeed/state", status['Speed']['Current'], retain = False, use_topic_header = True)
+    status['Speed']['SpeedFact_0_100'] = (int(data_array[5], 16) & 0xFF00) >> 8
+    LocalBrocker.bag_pub("fanspeed/Current", status['Speed']['Current'], retain = False, use_topic_header = True)
+    LocalBrocker.bag_pub("fanspeed/SpeedFact_0_100", status['Speed']['SpeedFact_0_100'], retain = False, use_topic_header = True)
     '''
     bitMisc:
         Bit 3-0 – TempMin – минимально допустимая заданная температура (от 5 до 15). Может изменяться
@@ -942,11 +944,15 @@ def get_vent_status(client):
         time.sleep(0.5)
         data = send_request('{0}_{1:X}'.format('VSens', TCP_PASS))
         if data:
-            data_array = split_data(data, 13)
+            data_array = split_data(data, 10)
             if data_array:
-                status['Sensors']['Sens_01'] = (-(int(data_array[1], 16) & 0x8000) | (
-                        int(data_array[1], 16) & 0x7fff)) / 10.0
-                status['Sensors']['Sens_05'] = int(data_array[5], 16) / 10.0
+                TInf = int(data_array[2], 16) / 10 # температура воздуха на выходе вентустановки х 10, °С. Диапазон значений от -50,0 до 70,0. При отсутствии корректных данных значение равно 0xFB07
+                TOut = int(data_array[6], 16) / 10 # температура наружного воздуха
+                Pwr = int(data_array[9], 16) # потребляемая калорифером мощность, Вт (от 0 до 65500)
+                
+                LocalBrocker.bag_pub("temp/outlet", TInf, retain = False, use_topic_header = True)
+                LocalBrocker.bag_pub("temp/outside", TOut, retain = False, use_topic_header = True)
+                LocalBrocker.bag_pub("power", Pwr, retain = False, use_topic_header = True)
             else:
                 # if data != "VSens__127_fb07_fb07_fb07_119_fb07_fb07_0" and data != "VSens__128_fb07_fb07_fb07_11a_fb07_fb07_0" and data != "VSens__126_fb07_fb07_fb07_11a_fb07_fb07_0" and data != "VSens__125_fb07_fb07_fb07_11a_fb07_fb07_0":
                     msg = 'Incorrect answer 4: {0}'.format(data)
@@ -1132,9 +1138,9 @@ def split_data(data, array_len=0):
     return data_array
 
 
-def job():
+def send_mqtt_autodiscovery():
     global subscribed_one_count
-    bagprint("Sending mqtt autodiscovery...", "LOG_INFO")
+    # bagprint("Sending mqtt autodiscovery...", "LOG_INFO")
 
     general_identifiers = "breezart"
     device_dict = {'identifiers': general_identifiers, 'name': 'Вентсистема', 'mf': 'Breezart', "hw_version": tpd_version, "sw_version": contr_version}
@@ -1168,7 +1174,7 @@ def job():
                 "mode_state_topic": "breezart2/mode/state",
                 "modes": [ "off", "heat", "auto", "fan_only" ], 
                 "fan_modes": speed_list,
-                "fan_mode_state_topic": "breezart2/fanspeed/state",
+                "fan_mode_state_topic": "breezart2/fanspeed/Current",
                 "fan_mode_command_topic": "breezart2/fanspeed/set",
                 "temperature_unit": "C",
                 "precision": 0.1,
@@ -1280,7 +1286,7 @@ def job():
     entity_identifiers = "breezart_comfort"
     arr_dict = {
                 "device": device_dict,
-                "device_class": None,
+                "device_class": "None",
                 "entity_category": "diagnostic",
                 "availability": {"topic": "breezart2/"},
                 "unique_id": entity_identifiers,
@@ -1298,7 +1304,7 @@ def job():
     entity_identifiers = "breezart_is_power"
     arr_dict = {
                 "device": device_dict,
-                "device_class": None,
+                "device_class": "None",
                 "entity_category": "diagnostic",
                 "availability": {"topic": "breezart2/"},
                 "unique_id": entity_identifiers,
@@ -1317,7 +1323,7 @@ def job():
     entity_identifiers = "breezart_is_powerblock"
     arr_dict = {
                 "device": device_dict,
-                "device_class": None,
+                "device_class": "None",
                 "entity_category": "diagnostic",
                 "availability": {"topic": "breezart2/"},
                 "unique_id": entity_identifiers,
@@ -1336,7 +1342,7 @@ def job():
     entity_identifiers = "breezart_SpeedIsDown"
     arr_dict = {
                 "device": device_dict,
-                "device_class": None,
+                "device_class": "None",
                 "entity_category": "diagnostic",
                 "availability": {"topic": "breezart2/"},
                 "unique_id": entity_identifiers,
@@ -1355,7 +1361,7 @@ def job():
     entity_identifiers = "breezart_is_regpressvav"
     arr_dict = {
                 "device": device_dict,
-                "device_class": None,
+                "device_class": "None",
                 "entity_category": "diagnostic",
                 "availability": {"topic": "breezart2/"},
                 "unique_id": entity_identifiers,
@@ -1424,6 +1430,87 @@ def job():
     payload = json.dumps(arr_dict, ensure_ascii=False)
     if LocalBrocker.connected_flag == True:
         LocalBrocker.bag_pub("homeassistant/sensor/FilterDust/config", payload, use_topic_header = False)
+
+    # SpeedFact_0_100
+    entity_identifiers = "breezart_SpeedFact_0_100"
+    arr_dict = {
+                "device": device_dict,
+                "availability": {"topic": "breezart2/"},
+                # "availability_mode": "all",
+                "unique_id": entity_identifiers,
+                "object_id": entity_identifiers,
+                "name": "Факт скорость вентилятора 0-100%",
+                "icon": "mdi:speedometer",
+                "unit_of_measurement": "%",
+                "state_topic": "breezart2/fanspeed/SpeedFact_0_100",
+                "qos": 1
+                }
+    
+    payload = json.dumps(arr_dict, ensure_ascii=False)
+    if LocalBrocker.connected_flag == True:
+        LocalBrocker.bag_pub("homeassistant/sensor/SpeedFact_0_100/config", payload, use_topic_header = False)
+
+    # Pwr (мощность в Вт при включенном калорифере)
+    entity_identifiers = "breezart_power"
+    arr_dict = {
+                "device": device_dict,
+                "availability": {"topic": "breezart2/"},
+                # "availability_mode": "all",
+                "unique_id": entity_identifiers,
+                "object_id": entity_identifiers,
+                "name": "Мощность",
+                "device_class": "power",
+                # "icon": "mdi:speedometer",
+                "unit_of_measurement": "W",
+                "state_topic": "breezart2/power",
+                "qos": 1
+                }
+    
+    payload = json.dumps(arr_dict, ensure_ascii=False)
+    if LocalBrocker.connected_flag == True:
+        LocalBrocker.bag_pub("homeassistant/sensor/power/config", payload, use_topic_header = False)
+
+
+    # TInf (Температура на выходе вентустановки)
+    entity_identifiers = "breezart_outlet_temp"
+    arr_dict = {
+                "device": device_dict,
+                "availability": {"topic": "breezart2/"},
+                # "availability_mode": "all",
+                "unique_id": entity_identifiers,
+                "object_id": entity_identifiers,
+                "name": "t° на выходе",
+                "device_class": "temperature",
+                # "icon": "mdi:speedometer",
+                "unit_of_measurement": "°C",
+                "state_topic": "breezart2/temp/outlet",
+                "qos": 1
+                }
+    
+    payload = json.dumps(arr_dict, ensure_ascii=False)
+    if LocalBrocker.connected_flag == True:
+        LocalBrocker.bag_pub("homeassistant/sensor/outlet_temp/config", payload, use_topic_header = False)
+
+
+    # TOut (Температура наружного воздуха)
+    entity_identifiers = "breezart_outside_temp"
+    arr_dict = {
+                "device": device_dict,
+                "availability": {"topic": "breezart2/"},
+                # "availability_mode": "all",
+                "unique_id": entity_identifiers,
+                "object_id": entity_identifiers,
+                "name": "t° наружного воздуха",
+                "device_class": "temperature",
+                # "icon": "mdi:speedometer",
+                "unit_of_measurement": "°C",
+                "state_topic": "breezart2/temp/outside",
+                "qos": 1
+                }
+    
+    payload = json.dumps(arr_dict, ensure_ascii=False)
+    if LocalBrocker.connected_flag == True:
+        LocalBrocker.bag_pub("homeassistant/sensor/outside_temp/config", payload, use_topic_header = False)
 
 
 
@@ -1511,8 +1598,8 @@ if __name__ == '__main__':
     msg = 'Bridge BREEZARD-MQTT started'
     bagprint(msg, "LOG_INFO")
 
-    job()
-    schedule.every(10).seconds.do(job)
+    send_mqtt_autodiscovery()
+    schedule.every(60).seconds.do(send_mqtt_autodiscovery)
     # schedule.every(1).minutes.do(job)
 
     # noinspection PyBroadException

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Диденко Александр. +79802616369, wa.me/+79802616369, t.me/+79802616369, vk.com/Bagunda. Обращайтесь если нужно что-то сделать по этой теме на коммерческой основе. Сам я УмноДомщик с громадным стажем. Могу связать всё со всем.
+# https://github.com/Bagunda/breezart-mqtt-bridge
 __author__ = "Bagunda"
 __license__ = "GPL"
 __version__ = "1.2.1"

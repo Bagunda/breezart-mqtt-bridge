@@ -40,10 +40,20 @@ systemctl enable breezart-mqtt.service
 systemctl start breezart-mqtt.service
 ```
 
-## MQTT Топики для получения состояния
+## MQTT Топики для получения состояния и посыла команд
 
 ```
-breezart/#
+breezart2/#
+```
+
+
+## MQTT Топики для посыла команд
+
+```
+breezart2/valves/VAV_num/set - VAV_num - номер клапана по порядку его определения вентустановкой. Количество клапанов определяется автоматически. И правильное количество клапанов правильно залетает в Home Assistance (autodiscovery)
+breezart2/mode/set - установка режима: HEAT, COOL, AUTO, FAN_ONLY, OFF (большие буквы не обязательны)
+breezart2/temp/target/set - установка уставки температуры
+breezart2/fanspeed/set - установка уставки скорости работы вентилятора. Количество скоростей определяется автоматически путём опроса контроллера (пульт)
 ```
 
 ## Контроль работы
@@ -64,7 +74,7 @@ mosquitto_sub -h 192.168.0.126 -t "#" -v -u "mqtt_login" -P "mqtt_pass"
 
 ![image](https://github.com/Bagunda/breezart-mqtt-bridge/assets/16766521/93df6847-0728-490a-9f85-53cf6f44fa83)
 
-![image](https://github.com/Bagunda/breezart-mqtt-bridge/assets/16766521/803eb101-0292-456d-97ca-2d1fda45b341)
+![image](https://github.com/Bagunda/breezart-mqtt-bridge/assets/16766521/84616ebc-def4-4626-9fdc-b93b70a63b8f)
 
 ![image](https://github.com/Bagunda/breezart-mqtt-bridge/assets/16766521/b70384fe-9c0f-4f0e-a1f5-b3dfcb76499a)
 

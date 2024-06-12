@@ -1287,7 +1287,6 @@ def send_mqtt_autodiscovery():
     entity_identifiers = "breezart_comfort"
     arr_dict = {
                 "device": device_dict,
-                "device_class": "None",
                 "entity_category": "diagnostic",
                 "availability": {"topic": "breezart2/"},
                 "unique_id": entity_identifiers,
@@ -1305,7 +1304,6 @@ def send_mqtt_autodiscovery():
     entity_identifiers = "breezart_is_power"
     arr_dict = {
                 "device": device_dict,
-                "device_class": "None",
                 "entity_category": "diagnostic",
                 "availability": {"topic": "breezart2/"},
                 "unique_id": entity_identifiers,
@@ -1324,7 +1322,6 @@ def send_mqtt_autodiscovery():
     entity_identifiers = "breezart_is_powerblock"
     arr_dict = {
                 "device": device_dict,
-                "device_class": "None",
                 "entity_category": "diagnostic",
                 "availability": {"topic": "breezart2/"},
                 "unique_id": entity_identifiers,
@@ -1343,7 +1340,6 @@ def send_mqtt_autodiscovery():
     entity_identifiers = "breezart_SpeedIsDown"
     arr_dict = {
                 "device": device_dict,
-                "device_class": "None",
                 "entity_category": "diagnostic",
                 "availability": {"topic": "breezart2/"},
                 "unique_id": entity_identifiers,
@@ -1362,7 +1358,6 @@ def send_mqtt_autodiscovery():
     entity_identifiers = "breezart_is_regpressvav"
     arr_dict = {
                 "device": device_dict,
-                "device_class": "None",
                 "entity_category": "diagnostic",
                 "availability": {"topic": "breezart2/"},
                 "unique_id": entity_identifiers,

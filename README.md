@@ -11,10 +11,11 @@
 
 1. `apt install python3-paho-mqtt`
 3. `apt install python3-schedule`
-4. Скопируем файл bag_breezart-mqtt.py в папку /root/diy/breezart/
-5. Скопируем файл BagMQTTClass.py в папку /root/diy/
-6. Скопируем файл mqtt_credentials.json в папку /root/diy/
-7. Отредактируем параметры подключения в заголовке файла:
+4. Создайте папку `mkdir /root/diy` и `mkdir /root/diy/breezart`
+5. Скопируем файл bag_breezart-mqtt.py в папку /root/diy/breezart/
+6. Скопируем файл BagMQTTClass.py в папку /root/diy/
+7. Скопируем файл mqtt_credentials.json в папку /root/diy/
+8. Отредактируем параметры подключения в заголовке файла:
 - адрес пульта вентиляции в TCP_IP
 - активируем пароль в настройках пульта и пропишем в TCP_PASS
 3. Настроим подключение к брокеру MQTT - адрес, логин и пароль в файле /root/diy/mqtt_credentials.json

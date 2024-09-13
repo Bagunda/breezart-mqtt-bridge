@@ -12,13 +12,14 @@
 1. `apt install python3-paho-mqtt`
 3. `apt install python3-schedule`
 4. Создайте папку `mkdir /root/diy` и `mkdir /root/diy/breezart`
-5. Скопируем файл bag_breezart-mqtt.py в папку /root/diy/breezart/
-6. Скопируем файл BagMQTTClass.py в папку /root/diy/
-7. Скопируем файл mqtt_credentials.json в папку /root/diy/
-8. Отредактируем параметры подключения к Breezart в файле `breezart/bag_breezart-mqtt.py`:
+5. Перейдём в папку `cd /root/diy/breezart`
+6. Скопируем файл bag_breezart-mqtt.py в папку /root/diy/breezart/: `wget https://raw.githubusercontent.com/Bagunda/breezart-mqtt-bridge/master/breezart/bag_breezart-mqtt.py`
+7. Скопируем файл BagMQTTClass.py в папку /root/diy/: `cd /root/diy` и `wget https://raw.githubusercontent.com/Bagunda/breezart-mqtt-bridge/master/BagMQTTClass.py`
+8. Скопируем файл mqtt_credentials.json в папку /root/diy/ `wget https://raw.githubusercontent.com/Bagunda/breezart-mqtt-bridge/master/mqtt_credentials.json`
+9. Отредактируем параметры подключения к Breezart в файле `nano /root/diy/breezart/bag_breezart-mqtt.py`:
 - адрес пульта вентиляции в переменной `TCP_IP`
 - активируем пароль в настройках пульта и пропишем в переменной `TCP_PASS`
-3. Настроим подключение к брокеру MQTT - адрес, логин и пароль в файле /root/diy/mqtt_credentials.json
+3. Настроим подключение к брокеру MQTT - адрес, логин и пароль в файле `nano /root/diy/mqtt_credentials.json`
 4. Настроим запуск сервиса в автоматическом режиме с использованием systemd
 - введём команду `systemctl edit --force --full breezart-mqtt.service` и вставим туда содержимое:
 
@@ -44,6 +45,7 @@ systemctl enable breezart-mqtt.service
 systemctl start breezart-mqtt.service
 ```
 
+Дальше просто для справки:
 ## MQTT Топики для получения состояния и посыла команд
 
 ```
